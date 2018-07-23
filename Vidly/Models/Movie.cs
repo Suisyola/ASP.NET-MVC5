@@ -16,6 +16,7 @@ namespace Vidly.Models
         public MovieType MovieType { get; set; }
 
         [Required]
+        [Display(Name = "Genre")]
         public int MovieTypeId { get; set; }
 
         [Required]
@@ -26,6 +27,7 @@ namespace Vidly.Models
         public DateTime DateAdded { get; set; }
 
         [Required]
+        [Range(1, 20)]
         [Display(Name = "Number In Stock")]
         public int NumInStock { get; set; }
     }

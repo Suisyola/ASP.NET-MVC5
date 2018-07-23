@@ -47,6 +47,9 @@ namespace Vidly.Controllers
 
             var viewModel = new CustomerFormViewModel
             {
+                // Need to init new Customer due to Customer.Id will fail validation. The actual value will be an 
+                // empty string and ASP.Net cannot translate it to int.
+                Customer = new Customer(),
                 MembershipTypes = membershipTypes
             };
 
@@ -54,8 +57,24 @@ namespace Vidly.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult Save(CustomerFormViewModel viewmodel)
         {
+            if (!ModelState.IsValid)
+            {
+                var customerFormViewModel = new CustomerFormViewModel
+                {
+                    // Repopulate fields entered by users
+                    Customer = viewmodel.Customer,
+
+                    // Populate list of membership types
+                    MembershipTypes = _context.MembershipTypes.ToList()
+                };
+
+                // Redirect back to the same page that failed validation
+                return View("CustomerForm", customerFormViewModel);
+            }
+
             // Id = 0 implies new customer
             if (viewmodel.Customer.Id == 0)
             {

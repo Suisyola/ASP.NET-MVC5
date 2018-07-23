@@ -1,26 +1,33 @@
 ﻿@model Vidly.Models.CustomerFormViewModel
 @{
-                /**/
+    /**/
 
-                ViewBag.Title = "New";
-                Layout = "~/Views/Shared/_Layout.cshtml";
+    ViewBag.Title = "New";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <h2>New Customer</h2>
 
 @using (Html.BeginForm("Save", "Customers"))
 {
+    @Html.ValidationSummary()
+
     <div class="form-group">
         @Html.LabelFor(m => m.Customer.Name)
         @Html.TextBoxFor(m => m.Customer.Name, new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Customer.Name)
+    </div>
+    <div class="form-group">
+        @Html.LabelFor(m => m.Customer.MembershipTypeId)
+        @Html.DropDownListFor(m => m.Customer.MembershipTypeId, new SelectList(Model.MembershipTypes, "Id", "MembershipTypeDesc"), "Select Membership Type", new { @class = "form-control" })
+        @*Vidly.Models.Customer.MembershipTypeId is of type byte. Hence, it will implicitly be required as .NET do not know how to translate empty string value to byte.
+            It would not be required if it is of type byte?*@
+        @Html.ValidationMessageFor(m => m.Customer.MembershipTypeId)
     </div>
     <div class="form-group">
         @Html.LabelFor(m => m.Customer.BirthdayDate)
         @Html.TextBoxFor(m => m.Customer.BirthdayDate, "{0:d MMM yyyy}", new { @class = "form-control" })
-    </div>
-    <div class="form-group">
-        @Html.LabelFor(m => m.Customer.MembershipType)
-        @Html.DropDownListFor(m => m.Customer.MembershipTypeId, new SelectList(Model.MembershipTypes, "Id", "MembershipTypeDesc"), "Select Membership Type", new { @class = "form-control" })
+        @Html.ValidationMessageFor(m => m.Customer.BirthdayDate)
     </div>
     <div class="checkbox">
         <label>
@@ -29,5 +36,11 @@
         </label>
     </div>
     @Html.HiddenFor(m => m.Customer.Id)
+    @Html.AntiForgeryToken()
     <button type="submit" class="btn btn-primary">Save</button>
+}
+
+@section scripts
+{
+    @Scripts.Render("~/bundles/jqueryval")
 }

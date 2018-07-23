@@ -10,7 +10,7 @@ namespace Vidly.Models
     {
         public int Id { get; set; }
         
-        [Display(Name = "Genre")]
+        
         public string Name { get; set; }
     }
 }

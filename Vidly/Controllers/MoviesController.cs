@@ -76,6 +76,7 @@ namespace Vidly.Controllers
 
             var viewmodel = new MovieFormViewModel
             {
+                Movie = new Movie(),
                 MovieTypes = movieTypes
             };
 
@@ -101,8 +102,20 @@ namespace Vidly.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public ActionResult Save(MovieFormViewModel viewmodel)
         {
+            if (!ModelState.IsValid)
+            {
+                var movieFormViewModel = new MovieFormViewModel
+                {
+                    Movie = viewmodel.Movie,
+                    MovieTypes = _context.MovieTypes.ToList()
+                };
+
+                return View("MovieForm", movieFormViewModel);
+            }
+
             // Id = 0 implies new movie
             if (viewmodel.Movie.Id == 0)
             {
