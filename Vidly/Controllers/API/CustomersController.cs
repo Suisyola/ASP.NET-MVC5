@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -22,7 +23,10 @@ namespace Vidly.Controllers.API
         // GET /api/customers
         public IHttpActionResult GetCustomers()
         {
-            var customerDtos = _context.Customers.ToList().Select(Mapper.Map<Customer, CustomerDTO>);
+            var customerDtos = _context.Customers
+                .Include(c => c.MembershipType)
+                .ToList().
+                Select(Mapper.Map<Customer, CustomerDto>);
 
             return Ok(customerDtos);
         }
@@ -37,19 +41,19 @@ namespace Vidly.Controllers.API
                 return NotFound(); 
             }
             
-            return Ok(Mapper.Map<Customer, CustomerDTO>(customer));
+            return Ok(Mapper.Map<Customer, CustomerDto>(customer));
         }
 
         // POST /api/customers
         [HttpPost]  // Should have attribute HttpPost because we are creating a resource. This action will only be called if POST request is sent
-        public IHttpActionResult CreateCustomer(CustomerDTO customerDto)
+        public IHttpActionResult CreateCustomer(CustomerDto customerDto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest();
             }
 
-            var customer = Mapper.Map<CustomerDTO, Customer>(customerDto);
+            var customer = Mapper.Map<CustomerDto, Customer>(customerDto);
 
             _context.Customers.Add(customer);
             _context.SaveChanges();
@@ -61,7 +65,7 @@ namespace Vidly.Controllers.API
 
         // PUT /api/customers/1
         [HttpPut]
-        public IHttpActionResult UpdateCustomer(int id, CustomerDTO customerDto)
+        public IHttpActionResult UpdateCustomer(int id, CustomerDto customerDto)
         {
             if (!ModelState.IsValid)
             {
@@ -78,7 +82,7 @@ namespace Vidly.Controllers.API
             // Update the customer object in the dataset. Map from 1st arg into 2nd arg.
             // This overload is used so that _context can track the changes and then commit into database.
             // If use var customer = Mapper.Map<CustomerDTO, Customer>(customerDto), _context cannot track the changes.
-            Mapper.Map<CustomerDTO, Customer>(customerDto, customerInDb);
+            Mapper.Map<CustomerDto, Customer>(customerDto, customerInDb);
 
             _context.SaveChanges();
 

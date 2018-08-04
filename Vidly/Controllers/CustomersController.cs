@@ -25,9 +25,9 @@ namespace Vidly.Controllers
         {
             // var customers = _context.Customers will only query database when customers var is interated in the View
             // To query immediately, add a method behind, e.g. ToList() or SingleOrDefault()
-            var customers = _context.Customers.Include(c => c.MembershipType).ToList();
+            // var customers = _context.Customers.Include(c => c.MembershipType).ToList();
 
-            return View(customers);
+            return View();
         }
 
         [Route("Customers/Details/{id}")]

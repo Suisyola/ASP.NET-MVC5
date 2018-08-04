@@ -7,7 +7,7 @@ using Vidly.Models;
 
 namespace Vidly.DTOs
 {
-    public class CustomerDTO
+    public class CustomerDto
     {
         public int Id { get; set; }
 
@@ -18,6 +18,8 @@ namespace Vidly.DTOs
         public bool IsSubscribedToNewsLetter { get; set; }
         
         public byte MembershipTypeId { get; set; }
+
+        public MembershipTypeDto MembershipType { get; set; }
         
         //[Min18YearsIfAMember]
         public DateTime? BirthdayDate { get; set; }

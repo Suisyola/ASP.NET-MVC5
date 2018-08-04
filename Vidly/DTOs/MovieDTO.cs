@@ -6,12 +6,14 @@ using System.Web;
 
 namespace Vidly.DTOs
 {
-    public class MovieDTO
+    public class MovieDto
     {
         public int Id { get; set; }
 
         [Required]
         public string Name { get; set; }
+
+        public MovieTypeDto MovieType { get; set; }
 
         [Required]
         public int MovieTypeId { get; set; }

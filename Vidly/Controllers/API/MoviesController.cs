@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Data.Entity;
 using System.Net;
 using System.Net.Http;
 using System.Web.Http;
@@ -20,9 +21,14 @@ namespace Vidly.Controllers.API
         }
 
         // GET /api/movies
-        public IEnumerable<MovieDTO> GetMovies()
+        public IHttpActionResult GetMovies()
         {
-            return _context.Movies.ToList().Select(Mapper.Map<Movie, MovieDTO>);
+            var result = _context.Movies
+                .Include(m => m.MovieType)
+                .ToList()
+                .Select(Mapper.Map<Movie, MovieDto>);
+
+            return Ok(result);
         }
 
         // GET /api/movies/1
@@ -35,19 +41,19 @@ namespace Vidly.Controllers.API
                 return NotFound();
             }
 
-            return Ok(Mapper.Map<Movie, MovieDTO>(movie));
+            return Ok(Mapper.Map<Movie, MovieDto>(movie));
         }
 
         // POST /api/movies
         [HttpPost]  
-        public IHttpActionResult CreateMovie(MovieDTO movieDto)
+        public IHttpActionResult CreateMovie(MovieDto movieDto)
         {
             if (!ModelState.IsValid)
             {
                 return BadRequest();
             }
 
-            var movie = Mapper.Map<MovieDTO, Movie>(movieDto);
+            var movie = Mapper.Map<MovieDto, Movie>(movieDto);
 
             _context.Movies.Add(movie);
             _context.SaveChanges();
@@ -59,7 +65,7 @@ namespace Vidly.Controllers.API
 
         // PUT /api/movies/1
         [HttpPut]
-        public IHttpActionResult UpdateMovie(int id, MovieDTO movieDto)
+        public IHttpActionResult UpdateMovie(int id, MovieDto movieDto)
         {
             if (!ModelState.IsValid)
             {
@@ -73,7 +79,7 @@ namespace Vidly.Controllers.API
                 return NotFound();
             }
 
-            Mapper.Map<MovieDTO, Movie>(movieDto, movieInDb);
+            Mapper.Map<MovieDto, Movie>(movieDto, movieInDb);
 
             _context.SaveChanges();
 

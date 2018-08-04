@@ -16,27 +16,103 @@
 }
 
 <h2>Customers</h2>
-@if (!Model.Any())
+
+<table id="customers" class="table table-bordered table-hover">
+  <thead>
+  <tr>
+    <th>Customer</th>
+    <th>Membership Type</th>
+    <th>Delete</th>
+  </tr>
+  </thead>
+  <tbody>
+  @*for rendering of data on server side. See below for revised rendering on client side*@
+  @*@foreach (var customer in Model)
+      {
+        <tr>
+          <td>@Html.ActionLink(customer.Name, "Edit", "Customers", new {id = customer.Id}, null)</td>
+          <td>@customer.MembershipType.MembershipTypeDesc</td>
+          <td>*@
+  @*set customer.id to data attribute, 'data-customer-id'*@
+  @*<button data-customer-id="@customer.Id" class="btn-link js-delete">Delete</button>
+          </td>
+        </tr>
+      }*@
+  </tbody>
+</table>
+
+
+@section scripts
 {
-    <p>We don't have any customers yet.</p>
-}
-else
-{
-    <table class="table table-bordered table-hover">
-        <thead>
-            <tr>
-                <th>Customer</th>
-                <th>Membership Type</th>
-            </tr>
-        </thead>
-        <tbody>
-        @foreach (var customer in Model)
-        {
-            <tr>
-                <td>@Html.ActionLink(customer.Name, "Edit", "Customers", new { id = customer.Id }, null)</td>
-                <td>@customer.MembershipType.MembershipTypeDesc</td>
-            </tr>
-        }
-        </tbody>
-    </table>
+  <script>
+    $(document).ready(function () {
+
+      // use DataTable plugin
+      var table = $("#customers").DataTable({
+
+        // It is possible to create dataTable using one liner code, $("#customers").DataTable(). However, it is not performance friendly, as .DataTable() would need to
+        // look through markup to create the table.
+        // Alternate method, which is more performance friendly, is using API to pass JSON data (from retrieval of all Customers records) into DataTable.
+        ajax: {
+          url: "/api/customers",
+          dataSrc: ""
+        },
+        columns: [
+          // first column - Name. Data is from JSON name property
+          {
+            data: "name",
+            render: function(data, type, customer) {
+              return "<a href='/customers/edit/" + customer.id + "'>" + customer.name + "</a>";
+            }
+          },
+          {
+            data: "membershipType.membershipTypeDesc"
+          },
+          {
+            data: "id",
+            render: function(data) {
+              return "<button class='btn-link js-delete' data-customer-id=" + data + ">Delete</Button>";
+            }
+
+          }
+          ]
+
+      });
+
+      // when an HTML element within id=customers, class=".js-delete" is click
+      // Note that this method is not so performance friendly, as an event handler 
+      // is created for each row that is #customers.js - delete.This consumes more memory
+      //$("#customers .js-delete").on("click",
+      // alternate way of implementation of onClick. This only hook a single onClick 
+      // event handler to #customers.Consume lesser memory. .js - delete is the filter.
+      // If click event is raised on an element that matches.js - delete, the callback function will then be called
+      $("#customers").on("click", ".js-delete",
+        function() {
+
+          // Get a reference to $(this) on button click. This is required 
+          // because $(this) could change in callback function.i.e.$(this) 
+          // during button click and during callback could be different HTML 
+          // element.Will need this so that the correct row is deleted, on callback.
+          var button = $(this);
+
+          bootbox.confirm("Delete ah?",
+            function(result) {
+              if (result) {
+                // ajax call to API to delete customer using it's ID
+                $.ajax({
+                  url: "/api/customers/" + button.attr("data-customer-id"),
+                  method: "DELETE",
+                  success: function() {
+
+                    // delete the row where it's delete button is clicked
+                    // this removes the record stored by DataTable in internal memory. Draw() is to re-render the list of records.
+                    // scope of $(this) can change for callback function. Hence, use var button
+                    table.row(button.parents("tr")).remove().draw();
+                  }
+                });
+              }
+            });
+        });
+    });
+  </script>
 }
