@@ -25,8 +25,14 @@ namespace Vidly.Controllers
 
         public ViewResult Index()
         {
+            // Checks if user has role, "CanManageMovies", then display Views that is accessible by admins
+            if (User.IsInRole(RoleName.CanManageMovies))
+            {
+                return View("List");
+            }
 
-            return View();
+            return View("ReadOnlyList");
+            
         }
 
         public ActionResult Details(int id)
@@ -68,6 +74,7 @@ namespace Vidly.Controllers
             return Content(year + "/" + month);
         }
 
+        [Authorize(Roles = RoleName.CanManageMovies)]
         public ActionResult New()
         {
             // get list of all movie types
@@ -82,6 +89,7 @@ namespace Vidly.Controllers
             return View("MovieForm", viewmodel);
         }
 
+        [Authorize(Roles = RoleName.CanManageMovies)]
         public ActionResult Edit(int Id)
         {
             var movie = _context.Movies.Include(m => m.MovieType).Single(m => m.Id == Id);
@@ -102,6 +110,7 @@ namespace Vidly.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = RoleName.CanManageMovies)]
         public ActionResult Save(MovieFormViewModel viewmodel)
         {
             if (!ModelState.IsValid)
