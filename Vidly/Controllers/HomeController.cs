@@ -11,6 +11,8 @@ namespace Vidly.Controllers
     [AllowAnonymous] 
     public class HomeController : Controller
     {
+        // Disable cache for Index(). VaryByParam is set to wildcard, so that regardless of what URL param, there is no cache.
+        [OutputCache(Duration = 0, VaryByParam = "*", NoStore = true)]
         public ActionResult Index()
         {
             return View();
