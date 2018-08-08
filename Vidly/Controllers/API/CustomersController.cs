@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Http;
 using System.Web.Http;
 using AutoMapper;
+using Microsoft.Ajax.Utilities;
 using Vidly.DTOs;
 using Vidly.Models;
 
@@ -21,12 +22,20 @@ namespace Vidly.Controllers.API
         }
 
         // GET /api/customers
-        public IHttpActionResult GetCustomers()
+        // Optional parameter: query. Used by Typeahead plugin
+        public IHttpActionResult GetCustomers(string query = null)
         {
-            var customerDtos = _context.Customers
-                .Include(c => c.MembershipType)
-                .ToList().
-                Select(Mapper.Map<Customer, CustomerDto>);
+            var customersQuery = _context.Customers
+                .Include(c => c.MembershipType);
+
+            if (!String.IsNullOrWhiteSpace(query))
+            {
+                customersQuery = customersQuery.Where(c => c.Name.Contains(query));
+            }
+
+            var customerDtos =  customersQuery
+                .ToList()
+                .Select(Mapper.Map<Customer, CustomerDto>);
 
             return Ok(customerDtos);
         }
